@@ -1,5 +1,10 @@
 mod immich;
 
+extern crate log;
+extern crate simplelog;
+
+use simplelog::*;
+
 use std::process::exit;
 
 use clap::{Parser, Subcommand};
@@ -38,6 +43,14 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    simplelog::TermLogger::init(
+        simplelog::LevelFilter::Debug,
+        simplelog::Config::default(),
+        simplelog::TerminalMode::Mixed,
+        simplelog::ColorChoice::Auto,
+    )
+    .expect("Failed to start simplelog");
+
     let cli = Cli::parse();
 
     match &cli.command {
@@ -55,18 +68,39 @@ async fn main() {
             let mut config = openapi::apis::configuration::Configuration::new();
             config.base_path = server.to_string();
 
+            simplelog::info!("Pinging server...");
             match openapi::apis::server_info_api::ping_server(&config).await {
                 Ok(_) => {}
                 Err(_) => {
-                    println!("[ERROR] Failed to connect to server - check URL");
+                    simplelog::error!("[ERROR] Failed to connect to server - check URL");
                     exit(1);
                 }
             }
 
-            match immich::sign_in(&email, &password) {
-                Ok(_) => {}
-                Err(_) => exit(1),
+            simplelog::info!("Logging in...");
+            let auth_user = match immich::sign_in(&email, &password, &config).await {
+                Ok(auth_user) => {
+                    simplelog::info!("Logged in as {}", auth_user.user_email);
+                    auth_user
+                }
+                Err(_) => {
+                    simplelog::error!("Failed to sign in");
+                    exit(1);
+                }
             };
+
+            // Set bearer token
+            config.bearer_access_token = Some(auth_user.access_token);
+
+            match openapi::apis::asset_api::get_all_assets(&config).await {
+                Ok(assets) => {
+                    println!("assets: {:?}", assets.len());
+                }
+                Err(error) => {
+                    simplelog::error!("Failed to get assets {} ", error);
+                    exit(1);
+                }
+            }
         }
     }
 }

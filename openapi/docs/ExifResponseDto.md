@@ -4,13 +4,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | Option<**String**> |  | [optional]
+**id** | Option<**i64**> |  | [optional]
+**file_size_in_byte** | Option<**i64**> |  | [optional]
 **make** | Option<**String**> |  | [optional]
 **model** | Option<**String**> |  | [optional]
 **image_name** | Option<**String**> |  | [optional]
 **exif_image_width** | Option<**f32**> |  | [optional]
 **exif_image_height** | Option<**f32**> |  | [optional]
-**file_size_in_byte** | Option<**f32**> |  | [optional]
 **orientation** | Option<**String**> |  | [optional]
 **date_time_original** | Option<**String**> |  | [optional]
 **modify_date** | Option<**String**> |  | [optional]

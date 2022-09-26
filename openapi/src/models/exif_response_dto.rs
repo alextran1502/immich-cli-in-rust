@@ -14,7 +14,9 @@
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ExifResponseDto {
     #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
+    pub id: Option<i64>,
+    #[serde(rename = "fileSizeInByte", skip_serializing_if = "Option::is_none")]
+    pub file_size_in_byte: Option<i64>,
     #[serde(rename = "make", skip_serializing_if = "Option::is_none")]
     pub make: Option<String>,
     #[serde(rename = "model", skip_serializing_if = "Option::is_none")]
@@ -25,8 +27,6 @@ pub struct ExifResponseDto {
     pub exif_image_width: Option<f32>,
     #[serde(rename = "exifImageHeight", skip_serializing_if = "Option::is_none")]
     pub exif_image_height: Option<f32>,
-    #[serde(rename = "fileSizeInByte", skip_serializing_if = "Option::is_none")]
-    pub file_size_in_byte: Option<f32>,
     #[serde(rename = "orientation", skip_serializing_if = "Option::is_none")]
     pub orientation: Option<String>,
     #[serde(rename = "dateTimeOriginal", skip_serializing_if = "Option::is_none")]
@@ -59,12 +59,12 @@ impl ExifResponseDto {
     pub fn new() -> ExifResponseDto {
         ExifResponseDto {
             id: None,
+            file_size_in_byte: None,
             make: None,
             model: None,
             image_name: None,
             exif_image_width: None,
             exif_image_height: None,
-            file_size_in_byte: None,
             orientation: None,
             date_time_original: None,
             modify_date: None,

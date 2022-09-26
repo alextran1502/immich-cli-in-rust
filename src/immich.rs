@@ -1,9 +1,23 @@
 use std::error::Error;
 
-pub fn sign_in(email: &str, password: &str) -> Result<(), Box<dyn Error>> {
-    println!("signing in... email: {}, password: {}", email, password);
+use openapi::{
+    apis::{authentication_api, configuration::Configuration},
+    models::{LoginCredentialDto, LoginResponseDto},
+};
 
-    return Ok(());
+pub async fn sign_in(
+    email: &str,
+    password: &str,
+    api_config: &Configuration,
+) -> Result<LoginResponseDto, Box<dyn Error>> {
+    let login_payload: LoginCredentialDto = LoginCredentialDto {
+        email: email.to_string(),
+        password: password.to_string(),
+    };
+
+    let auth_user = authentication_api::login(&api_config, login_payload).await?;
+
+    Ok(auth_user)
 }
 
 // pub fn scan_directory(directory: &str) -> Result<(), Box<dyn Error>> {

@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'yourprogram'",
+      "cargo": {
+        "args": [
+          "--",
+          "upload",
+        ],
+        "filter": {
+          "name": "rust-immich",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

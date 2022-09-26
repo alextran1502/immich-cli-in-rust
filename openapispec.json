@@ -1244,7 +1244,18 @@
       "ExifResponseDto": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "nullable": true, "default": null },
+          "id": {
+            "type": "integer",
+            "nullable": true,
+            "default": null,
+            "format": "int64"
+          },
+          "fileSizeInByte": {
+            "type": "integer",
+            "nullable": true,
+            "default": null,
+            "format": "int64"
+          },
           "make": { "type": "string", "nullable": true, "default": null },
           "model": { "type": "string", "nullable": true, "default": null },
           "imageName": { "type": "string", "nullable": true, "default": null },
@@ -1254,11 +1265,6 @@
             "default": null
           },
           "exifImageHeight": {
-            "type": "number",
-            "nullable": true,
-            "default": null
-          },
-          "fileSizeInByte": {
             "type": "number",
             "nullable": true,
             "default": null
