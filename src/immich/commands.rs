@@ -25,9 +25,7 @@ pub async fn upload(
 
     // Get files from database
     let existing_assets = immich::request::get_device_assets(&api_config, &device_id).await;
-    println!("found {} existing assets", existing_assets.len());
+
     // Get files
     let files = immich::directory_walker::dir_walk(directory, &filter);
-
-    info!("Uploading {} files...", files.len());
 }

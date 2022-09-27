@@ -56,7 +56,10 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
     println!("[3] {}", "Getting device assets...".blink());
 
     match openapi::apis::asset_api::get_user_assets_by_device_id(api_config, device_id).await {
-        Ok(asset_id) => asset_id,
+        Ok(asset_id) => {
+            println!("[{}] Found {} existing assets", "✓".green(), asset_id.len());
+            asset_id
+        }
         Err(_) => {
             println!("[{}] {}", "x".red(), "Failed to get device assets".red());
             exit(1)
