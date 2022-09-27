@@ -3,7 +3,7 @@ use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
 };
-use std::error::Error;
+use std::{error::Error, process::exit};
 
 pub async fn ping_server(api_config: &Configuration) {
     println!("[1] Pinging server at {}", api_config.base_path.blue());
@@ -52,6 +52,14 @@ pub async fn login(
     Ok(auth_user)
 }
 
-pub async fn get_device_assets(device_id: &str) {
+pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> Vec<String> {
     println!("[3] {}", "Getting device assets...".blink());
+
+    match openapi::apis::asset_api::get_user_assets_by_device_id(api_config, device_id).await {
+        Ok(asset_id) => asset_id,
+        Err(_) => {
+            println!("[{}] {}", "x".red(), "Failed to get device assets".red());
+            exit(1)
+        }
+    }
 }
