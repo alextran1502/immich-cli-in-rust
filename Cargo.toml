@@ -12,3 +12,4 @@ openapi = { path = "./openapi" }
 log = { version = "0.4" }
 simplelog = { version = "^0.11.0", features = ["paris"] }
 walkdir = { version = "2.3.2" }
+colored = "2"

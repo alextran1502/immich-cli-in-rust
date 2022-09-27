@@ -1,8 +1,9 @@
 mod immich;
 
-extern crate simplelog;
+use std::path::Display;
 
 use clap::{Parser, Subcommand, ValueEnum};
+use colored::*;
 
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]
@@ -49,14 +50,6 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
-    simplelog::TermLogger::init(
-        simplelog::LevelFilter::Debug,
-        simplelog::Config::default(),
-        simplelog::TerminalMode::Mixed,
-        simplelog::ColorChoice::Auto,
-    )
-    .expect("Failed to start simplelog");
-
     let cli = Cli::parse();
 
     match &cli.command {

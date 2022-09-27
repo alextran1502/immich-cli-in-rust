@@ -3,8 +3,10 @@ use std::ffi::OsStr;
 use walkdir::WalkDir;
 
 use crate::FileFilter;
+use colored::*;
 
 pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
+    println!("[4] {} {}", "Indexing directory", path.blue());
     let valid_paths: Vec<String> = WalkDir::new(path)
         .into_iter()
         .filter_map(|e| match e.ok().filter(|e| e.file_type().is_file()) {
@@ -32,6 +34,11 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
             None => None,
         })
         .collect();
-
+    println!(
+        "[{}] {} files ({:?}) found",
+        "✓".green(),
+        valid_paths.len(),
+        filter,
+    );
     valid_paths
 }
