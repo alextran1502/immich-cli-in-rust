@@ -3,7 +3,6 @@ mod immich;
 extern crate simplelog;
 
 use clap::{Parser, Subcommand};
-use std::process::exit;
 
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]
@@ -55,25 +54,9 @@ async fn main() {
             password,
             directory,
             server,
-        } => {
-            immich::commands::upload(email, password, directory, server).await;
-
-            // Set bearer token
-            // config.bearer_access_token = Some(auth_user.access_token);
-            //
-            // match openapi::apis::asset_api::get_all_assets(&config).await {
-            //     Ok(assets) => {
-            //         println!("assets: {:?}", assets.len());
-            //     }
-            //     Err(error) => {
-            //         simplelog::error!("Failed to get assets {} ", error);
-            //         exit(1);
-            //     }
-            // }
-        }
+        } => immich::commands::upload(email, password, directory, server).await,
     }
 }
 
 // Quick Test
-
 // cargo run -- upload -e testuser@email.com -p password -d ~/Downloads -s http://10.1.15.216:2283/api
