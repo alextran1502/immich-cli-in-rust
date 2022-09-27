@@ -8,8 +8,8 @@ use colored::*;
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]
 #[clap(author = "Alex T. <alex.tran1502@gmail.com>")]
-#[clap(version = "1.0")]
 #[clap(about = "CLI Utilities for Immich", long_about = None)]
+#[clap(version)]
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
