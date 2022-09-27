@@ -2,8 +2,8 @@ mod immich;
 
 extern crate simplelog;
 
-use std::process::exit;
 use clap::{Parser, Subcommand};
+use std::process::exit;
 
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]
@@ -56,21 +56,7 @@ async fn main() {
             directory,
             server,
         } => {
-
-
             immich::commands::upload(email, password, directory, server).await;
-
-            // simplelog::info!("Logging in...");
-            // let auth_user = match immich::upload::sign_in(&email, &password, &config).await {
-            //     Ok(auth_user) => {
-            //         simplelog::info!("Logged in as {}", auth_user.user_email);
-            //         auth_user
-            //     }
-            //     Err(_) => {
-            //         simplelog::error!("Failed to sign in");
-            //         exit(1);
-            //     }
-            // };
 
             // Set bearer token
             // config.bearer_access_token = Some(auth_user.access_token);
@@ -84,7 +70,6 @@ async fn main() {
             //         exit(1);
             //     }
             // }
-
         }
     }
 }
