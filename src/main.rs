@@ -2,7 +2,7 @@ mod immich;
 
 extern crate simplelog;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]
@@ -12,6 +12,13 @@ use clap::{Parser, Subcommand};
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum FileFilter {
+    ALL,
+    VIDEO,
+    IMAGE,
 }
 
 #[derive(Subcommand, Debug)]
@@ -33,6 +40,10 @@ enum Commands {
         /// Immich Server URL
         #[clap(value_parser, short, long)]
         server: String,
+
+        /// File filter
+        #[clap(arg_enum, value_parser, short, long, default_value = "all")]
+        filter: FileFilter,
     },
 }
 
@@ -54,7 +65,8 @@ async fn main() {
             password,
             directory,
             server,
-        } => immich::commands::upload(email, password, directory, server).await,
+            filter,
+        } => immich::commands::upload(email, password, directory, server, filter).await,
     }
 }
 

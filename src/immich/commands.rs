@@ -1,13 +1,15 @@
 use simplelog::*;
-use std::{error::Error, process::exit};
 
-use crate::immich;
-use openapi::{
-    apis::{authentication_api, configuration::Configuration},
-    models::{LoginCredentialDto, LoginResponseDto},
-};
+use crate::{immich, FileFilter};
+use openapi::apis::configuration::Configuration;
 
-pub async fn upload(email: &str, password: &str, directory: &str, server: &str) {
+pub async fn upload(
+    email: &str,
+    password: &str,
+    directory: &str,
+    server: &str,
+    filter: &FileFilter,
+) {
     let mut api_config = Configuration::new();
     api_config.base_path = server.to_string();
 
@@ -21,7 +23,7 @@ pub async fn upload(email: &str, password: &str, directory: &str, server: &str) 
     api_config.bearer_access_token = Some(auth_user.access_token);
 
     // Get files
-    let files = immich::directory_walker::dir_walk(directory);
+    let files = immich::directory_walker::dir_walk(directory, &filter);
 
     info!("Uploading {} files...", files.len());
 }
