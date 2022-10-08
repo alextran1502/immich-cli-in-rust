@@ -33,7 +33,7 @@ pub async fn upload(
     let asset_on_database = immich::request::get_device_assets(&api_config, &device_id).await;
 
     // Get files
-    let asset_on_device = immich::directory_walker::dir_walk(directory, &filter)
+    let asset_on_device = immich::fs::dir_walk(directory, &filter)
         .iter()
         .map(|file| {
             let path = Path::new(&file);
@@ -59,5 +59,5 @@ pub async fn upload(
         })
         .collect_vec();
 
-    println!("Files to upload: {:#?}", files_to_upload);
+    immich::fs::get_file_metadata(&files_to_upload);
 }

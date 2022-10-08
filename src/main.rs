@@ -1,7 +1,5 @@
 mod immich;
 
-use std::path::Display;
-
 use clap::{Parser, Subcommand, ValueEnum};
 use colored::*;
 
