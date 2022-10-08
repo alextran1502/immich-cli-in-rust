@@ -2,7 +2,10 @@ use std::path::Path;
 
 use simplelog::*;
 
-use crate::{immich, FileFilter};
+use crate::{
+    immich::{self, models::DeviceAsset},
+    FileFilter,
+};
 use itertools::Itertools;
 use openapi::apis::configuration::Configuration;
 
@@ -26,31 +29,35 @@ pub async fn upload(
     // All requests that need auth start here
     api_config.bearer_access_token = Some(auth_user.access_token);
 
-    // Get files from database
-    let existing_assets = immich::request::get_device_assets(&api_config, &device_id).await;
-    println!("Existing assets: {:?}", existing_assets);
+    // Get deviceAssetId from database
+    let asset_on_database = immich::request::get_device_assets(&api_config, &device_id).await;
+
     // Get files
-    let files = immich::directory_walker::dir_walk(directory, &filter);
-
-    // let mut asset_on_device: Vec<String> = Vec::new();
-
-    // for file in files {
-    //     let path = Path::new(&file);
-    //     let file_name = path.file_name().unwrap().to_str().unwrap();
-    //     let file_size = path.metadata().unwrap().len();
-    //     // Construct file id
-    //     let file_id = format!("{}-{}", file_name, file_size);
-    // }
-
-    let asset_id_on_device = files
+    let asset_on_device = immich::directory_walker::dir_walk(directory, &filter)
         .iter()
         .map(|file| {
             let path = Path::new(&file);
             let file_name = path.file_name().unwrap().to_str().unwrap();
             let file_size = path.metadata().unwrap().len();
-            // Construct file id
-            format!("{}-{}", file_name, file_size)
+            let fild_id = format!("{}-{}", file_name, file_size);
+
+            DeviceAsset {
+                id: fild_id,
+                path: file.to_string(),
+            }
         })
         .collect_vec();
-    println!("asset_id_on_device: {:?}", asset_id_on_device);
+
+    // Get files that are not on device
+    let files_to_upload = asset_on_device
+        .iter()
+        .filter(|file| {
+            asset_on_database
+                .iter()
+                .find(|asset_id| asset_id.to_string() == file.id)
+                .is_none()
+        })
+        .collect_vec();
+
+    println!("Files to upload: {:#?}", files_to_upload);
 }
