@@ -1113,6 +1113,82 @@
         "tags": ["Album"],
         "security": [{ "bearer": [] }]
       }
+    },
+    "/jobs": {
+      "get": {
+        "operationId": "getAllJobsStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllJobStatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Job"],
+        "security": [{ "bearer": [] }]
+      }
+    },
+    "/jobs/{jobId}": {
+      "get": {
+        "operationId": "getJobStatus",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": { "$ref": "#/components/schemas/JobId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Job"],
+        "security": [{ "bearer": [] }]
+      },
+      "put": {
+        "operationId": "sendJobCommand",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": { "$ref": "#/components/schemas/JobId" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JobCommandDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": { "schema": { "type": "number" } }
+            }
+          }
+        },
+        "tags": ["Job"],
+        "security": [{ "bearer": [] }]
+      }
     }
   },
   "info": {
@@ -1668,6 +1744,73 @@
           "albumName": { "type": "string" },
           "albumThumbnailAssetId": { "type": "string" }
         }
+      },
+      "JobCounts": {
+        "type": "object",
+        "properties": {
+          "active": { "type": "integer" },
+          "completed": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "delayed": { "type": "integer" },
+          "waiting": { "type": "integer" }
+        },
+        "required": ["active", "completed", "failed", "delayed", "waiting"]
+      },
+      "AllJobStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "thumbnailGenerationQueueCount": {
+            "$ref": "#/components/schemas/JobCounts"
+          },
+          "metadataExtractionQueueCount": {
+            "$ref": "#/components/schemas/JobCounts"
+          },
+          "videoConversionQueueCount": {
+            "$ref": "#/components/schemas/JobCounts"
+          },
+          "machineLearningQueueCount": {
+            "$ref": "#/components/schemas/JobCounts"
+          },
+          "isThumbnailGenerationActive": { "type": "boolean" },
+          "isMetadataExtractionActive": { "type": "boolean" },
+          "isVideoConversionActive": { "type": "boolean" },
+          "isMachineLearningActive": { "type": "boolean" }
+        },
+        "required": [
+          "thumbnailGenerationQueueCount",
+          "metadataExtractionQueueCount",
+          "videoConversionQueueCount",
+          "machineLearningQueueCount",
+          "isThumbnailGenerationActive",
+          "isMetadataExtractionActive",
+          "isVideoConversionActive",
+          "isMachineLearningActive"
+        ]
+      },
+      "JobId": {
+        "type": "string",
+        "enum": [
+          "thumbnail-generation",
+          "metadata-extraction",
+          "video-conversion",
+          "machine-learning"
+        ]
+      },
+      "JobStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "isActive": { "type": "boolean" },
+          "queueCount": { "type": "object" }
+        },
+        "required": ["isActive", "queueCount"]
+      },
+      "JobCommand": { "type": "string", "enum": ["start", "stop"] },
+      "JobCommandDto": {
+        "type": "object",
+        "properties": {
+          "command": { "$ref": "#/components/schemas/JobCommand" }
+        },
+        "required": ["command"]
       }
     }
   }

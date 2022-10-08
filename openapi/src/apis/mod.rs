@@ -65,6 +65,7 @@ pub mod album_api;
 pub mod asset_api;
 pub mod authentication_api;
 pub mod device_info_api;
+pub mod job_api;
 pub mod server_info_api;
 pub mod user_api;
 

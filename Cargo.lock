@@ -540,6 +540,7 @@ checksum = "e82dad04139b71a90c080c8463fe0dc7902db5192d939bd0950f074d014339e1"
 [[package]]
 name = "openapi"
 version = "1.17.0"
+source = "git+https://github.com/immich-app/immich-sdk-rust#0e26ed9fe9e55d65ac1c8c911eb42334bba81dee"
 dependencies = [
  "reqwest",
  "serde",

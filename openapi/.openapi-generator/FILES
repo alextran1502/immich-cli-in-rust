@@ -8,6 +8,7 @@ docs/AdminSignupResponseDto.md
 docs/AlbumApi.md
 docs/AlbumCountResponseDto.md
 docs/AlbumResponseDto.md
+docs/AllJobStatusResponseDto.md
 docs/AssetApi.md
 docs/AssetCountByTimeBucket.md
 docs/AssetCountByTimeBucketResponseDto.md
@@ -33,6 +34,12 @@ docs/DeviceTypeEnum.md
 docs/ExifResponseDto.md
 docs/GetAssetByTimeBucketDto.md
 docs/GetAssetCountByTimeBucketDto.md
+docs/JobApi.md
+docs/JobCommand.md
+docs/JobCommandDto.md
+docs/JobCounts.md
+docs/JobId.md
+docs/JobStatusResponseDto.md
 docs/LoginCredentialDto.md
 docs/LoginResponseDto.md
 docs/LogoutResponseDto.md
@@ -59,6 +66,7 @@ src/apis/asset_api.rs
 src/apis/authentication_api.rs
 src/apis/configuration.rs
 src/apis/device_info_api.rs
+src/apis/job_api.rs
 src/apis/mod.rs
 src/apis/server_info_api.rs
 src/apis/user_api.rs
@@ -68,6 +76,7 @@ src/models/add_users_dto.rs
 src/models/admin_signup_response_dto.rs
 src/models/album_count_response_dto.rs
 src/models/album_response_dto.rs
+src/models/all_job_status_response_dto.rs
 src/models/asset_count_by_time_bucket.rs
 src/models/asset_count_by_time_bucket_response_dto.rs
 src/models/asset_count_by_user_id_response_dto.rs
@@ -90,6 +99,11 @@ src/models/device_type_enum.rs
 src/models/exif_response_dto.rs
 src/models/get_asset_by_time_bucket_dto.rs
 src/models/get_asset_count_by_time_bucket_dto.rs
+src/models/job_command.rs
+src/models/job_command_dto.rs
+src/models/job_counts.rs
+src/models/job_id.rs
+src/models/job_status_response_dto.rs
 src/models/login_credential_dto.rs
 src/models/login_response_dto.rs
 src/models/logout_response_dto.rs

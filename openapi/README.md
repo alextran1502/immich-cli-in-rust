@@ -57,6 +57,9 @@ Class | Method | HTTP request | Description
 *AuthenticationApi* | [**validate_access_token**](docs/AuthenticationApi.md#validate_access_token) | **POST** /auth/validateToken | 
 *DeviceInfoApi* | [**create_device_info**](docs/DeviceInfoApi.md#create_device_info) | **POST** /device-info | 
 *DeviceInfoApi* | [**update_device_info**](docs/DeviceInfoApi.md#update_device_info) | **PATCH** /device-info | 
+*JobApi* | [**get_all_jobs_status**](docs/JobApi.md#get_all_jobs_status) | **GET** /jobs | 
+*JobApi* | [**get_job_status**](docs/JobApi.md#get_job_status) | **GET** /jobs/{jobId} | 
+*JobApi* | [**send_job_command**](docs/JobApi.md#send_job_command) | **PUT** /jobs/{jobId} | 
 *ServerInfoApi* | [**get_server_info**](docs/ServerInfoApi.md#get_server_info) | **GET** /server-info | 
 *ServerInfoApi* | [**get_server_version**](docs/ServerInfoApi.md#get_server_version) | **GET** /server-info/version | 
 *ServerInfoApi* | [**ping_server**](docs/ServerInfoApi.md#ping_server) | **GET** /server-info/ping | 
@@ -77,6 +80,7 @@ Class | Method | HTTP request | Description
  - [AdminSignupResponseDto](docs/AdminSignupResponseDto.md)
  - [AlbumCountResponseDto](docs/AlbumCountResponseDto.md)
  - [AlbumResponseDto](docs/AlbumResponseDto.md)
+ - [AllJobStatusResponseDto](docs/AllJobStatusResponseDto.md)
  - [AssetCountByTimeBucket](docs/AssetCountByTimeBucket.md)
  - [AssetCountByTimeBucketResponseDto](docs/AssetCountByTimeBucketResponseDto.md)
  - [AssetCountByUserIdResponseDto](docs/AssetCountByUserIdResponseDto.md)
@@ -99,6 +103,11 @@ Class | Method | HTTP request | Description
  - [ExifResponseDto](docs/ExifResponseDto.md)
  - [GetAssetByTimeBucketDto](docs/GetAssetByTimeBucketDto.md)
  - [GetAssetCountByTimeBucketDto](docs/GetAssetCountByTimeBucketDto.md)
+ - [JobCommand](docs/JobCommand.md)
+ - [JobCommandDto](docs/JobCommandDto.md)
+ - [JobCounts](docs/JobCounts.md)
+ - [JobId](docs/JobId.md)
+ - [JobStatusResponseDto](docs/JobStatusResponseDto.md)
  - [LoginCredentialDto](docs/LoginCredentialDto.md)
  - [LoginResponseDto](docs/LoginResponseDto.md)
  - [LogoutResponseDto](docs/LogoutResponseDto.md)
