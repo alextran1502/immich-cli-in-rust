@@ -1,6 +1,9 @@
+use std::path::Path;
+
 use simplelog::*;
 
 use crate::{immich, FileFilter};
+use itertools::Itertools;
 use openapi::apis::configuration::Configuration;
 
 pub async fn upload(
@@ -25,7 +28,29 @@ pub async fn upload(
 
     // Get files from database
     let existing_assets = immich::request::get_device_assets(&api_config, &device_id).await;
-
+    println!("Existing assets: {:?}", existing_assets);
     // Get files
     let files = immich::directory_walker::dir_walk(directory, &filter);
+
+    // let mut asset_on_device: Vec<String> = Vec::new();
+
+    // for file in files {
+    //     let path = Path::new(&file);
+    //     let file_name = path.file_name().unwrap().to_str().unwrap();
+    //     let file_size = path.metadata().unwrap().len();
+    //     // Construct file id
+    //     let file_id = format!("{}-{}", file_name, file_size);
+    // }
+
+    let asset_id_on_device = files
+        .iter()
+        .map(|file| {
+            let path = Path::new(&file);
+            let file_name = path.file_name().unwrap().to_str().unwrap();
+            let file_size = path.metadata().unwrap().len();
+            // Construct file id
+            format!("{}-{}", file_name, file_size)
+        })
+        .collect_vec();
+    println!("asset_id_on_device: {:?}", asset_id_on_device);
 }

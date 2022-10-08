@@ -12,5 +12,6 @@ log = { version = "0.4" }
 simplelog = { version = "^0.11.0", features = ["paris"] }
 walkdir = { version = "2.3.2" }
 colored = "2"
-# openapi = { path = "./openapi" }
-openapi = { git = "https://github.com/immich-app/immich-sdk-rust" }
+openapi = { path = "./openapi" }
+itertools = "0.10.5"
+# openapi = { git = "https://github.com/immich-app/immich-sdk-rust" }
