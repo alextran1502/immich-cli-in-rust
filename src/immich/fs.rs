@@ -11,6 +11,7 @@ use super::models::DeviceAsset;
 enum FileType {
     Image,
     Video,
+    Other,
 }
 
 impl FromStr for FileType {
@@ -19,7 +20,7 @@ impl FromStr for FileType {
         match value {
             "png" | "jpg" | "jpeg" | "webp" | "dng" => Ok(FileType::Image),
             "mov" | "mp4" => Ok(FileType::Video),
-            _ => Err(()),
+            _ => Ok(FileType::Other),
         }
     }
 }
@@ -74,13 +75,24 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) {
             .unwrap()
             .to_str()
             .unwrap()
+            .to_lowercase()
             .parse::<FileType>()
             .unwrap()
         {
             FileType::Image => "IMAGE",
             FileType::Video => "VIDEO",
+            FileType::Other => {
+                println!(
+                    "[{}] {} {}",
+                    "✗".red(),
+                    "Unsupported file type",
+                    path.display().to_string().red()
+                );
+
+                "OTHER"
+            }
         };
 
-        println!("{:?}", file_type);
+        // println!("{:?}", file_type);
     });
 }
