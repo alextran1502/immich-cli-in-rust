@@ -382,6 +382,7 @@ dependencies = [
  "itertools",
  "log",
  "openapi",
+ "reqwest",
  "simplelog",
  "tokio",
  "walkdir",

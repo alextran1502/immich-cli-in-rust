@@ -1,11 +1,11 @@
+use super::models::UploadAsset;
 use colored::*;
 use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
 };
+use reqwest::multipart;
 use std::{error::Error, path::Path, process::exit};
-
-use super::models::UploadAsset;
 
 pub async fn ping_server(api_config: &Configuration) {
     println!("[1] Pinging server at {}", api_config.base_path.blue());
@@ -84,11 +84,15 @@ pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>)
             file_size.to_string().blue()
         );
 
+        let form = reqwest::multipart::Form::new()
+            .text("username", "seanmonstar")
+            .text("password", "secret");
+
         match openapi::apis::asset_api::upload_file(api_config, file_path.to_path_buf()).await {
             Ok(_) => {
                 println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
             }
-            Err(e) => {
+            Err(_) => {
                 println!("[{}] {}", "x".red(), "Failed to upload asset".red());
             }
         }
