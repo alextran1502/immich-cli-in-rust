@@ -1,7 +1,6 @@
 mod immich;
 
 use clap::{Parser, Subcommand, ValueEnum};
-use colored::*;
 
 #[derive(Parser, Debug)]
 #[clap(name = "Immich CLI")]

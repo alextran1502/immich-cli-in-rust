@@ -1,7 +1,5 @@
 use std::path::Path;
 
-use simplelog::*;
-
 use crate::{
     immich::{self, models::DeviceAsset},
     FileFilter,
@@ -59,5 +57,8 @@ pub async fn upload(
         })
         .collect_vec();
 
-    immich::fs::get_file_metadata(&files_to_upload);
+    let files_with_metadata = immich::fs::get_file_metadata(&files_to_upload);
+    println!("{:?}", files_with_metadata.len());
+
+    immich::request::upload_asset(&api_config, &files_with_metadata).await;
 }

@@ -3,7 +3,9 @@ use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
 };
-use std::{error::Error, process::exit};
+use std::{error::Error, path::Path, process::exit};
+
+use super::models::UploadAsset;
 
 pub async fn ping_server(api_config: &Configuration) {
     println!("[1] Pinging server at {}", api_config.base_path.blue());
@@ -65,4 +67,39 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
             exit(1)
         }
     }
+}
+
+pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>) {
+    println!("[6] {}", "Uploading assets...".blink());
+
+    for asset in assets {
+        let file_path = Path::new(&asset.path);
+        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+        let file_size = file_path.metadata().unwrap().len();
+
+        println!(
+            "[{}] Uploading {} ({} Bytes)",
+            "⇢".blue(),
+            file_name.blue(),
+            file_size.to_string().blue()
+        );
+
+        match openapi::apis::asset_api::upload_file(api_config, file_path.to_path_buf()).await {
+            Ok(_) => {
+                println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
+            }
+            Err(e) => {
+                println!("[{}] {}", "x".red(), "Failed to upload asset".red());
+            }
+        }
+    }
+    // asset.iter().for_each(|asset| {
+    //     println!("Uploading {}", asset.path.blue());
+    //     let path_to_file = Path::new(&asset.path).to_path_buf();
+    //     if let Ok(_) = openapi::apis::asset_api::upload_file(api_config, path_to_file).await {
+    //         println!("[{}] {}", "✓".green(), "Uploaded".green());
+    //     } else {
+    //         println!("[{}] {}", "x".red(), "Failed to upload".red());
+    //     }
+    // });
 }
