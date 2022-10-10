@@ -1,6 +1,6 @@
 use super::models::UploadAsset;
 use colored::*;
-use indicatif::ProgressBar;
+use indicatif::{ProgressBar, ProgressStyle};
 use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
@@ -73,27 +73,26 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
 }
 
 pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
-    println!("[5] {}", "Uploading assets...".blink());
     let client = reqwest::Client::new();
 
     let pb = ProgressBar::new(assets.len() as u64);
+    let progress_bar_style = ProgressStyle::with_template(
+        "[5] {spinner:.blue}  Uploading... {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+    )
+    .unwrap()
+    .progress_chars("##-");
+    pb.set_style(progress_bar_style);
 
     for asset in assets {
         let file_path = Path::new(&asset.path);
         let file_name = file_path.file_name().unwrap().to_str().unwrap();
         let file_size = file_path.metadata().unwrap().len();
 
-        // println!(
-        //     "[{}] Uploading {} ({} Bytes)",
-        //     "▶".blue(),
-        //     file_name.blue(),
-        //     file_size.to_string().blue()
-        // );
-
         pb.set_message(format!(
-            "Uploading {} ({} Bytes)",
-            file_name,
-            file_size.to_string()
+            "[{}] Uploading {} ({} Bytes)",
+            "▶".blue(),
+            file_name.blue(),
+            file_size.to_string().blue()
         ));
 
         let file = File::open(asset.path.to_string()).await.unwrap();
@@ -113,7 +112,10 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
             .text("createdAt", asset.created_at.to_string())
             .text("modifiedAt", asset.modified_at.to_string())
             .text("isFavorite", "false")
-            .text("fileExtension", asset.file_extension.to_string())
+            .text(
+                "fileExtension",
+                format!(".{}", asset.file_extension.to_string()),
+            )
             .text("duration", "0:00:00.000000")
             .part("assetData", file_data);
 
@@ -137,6 +139,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
                     pb.inc(1);
                     // println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
                 } else {
+                    pb.inc(1);
                     println!(
                         "[{}] {} {} | Error Message: {}",
                         "x".red(),
@@ -152,4 +155,6 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
             }
         }
     }
+
+    pb.finish_with_message(format!("[{}] Finished", "✓".green()))
 }
