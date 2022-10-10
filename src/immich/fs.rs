@@ -90,13 +90,13 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
             };
 
             let created_at = match path.metadata().unwrap().created() {
-                Ok(created_time) => iso8601(&created_time),
-                Err(_) => iso8601(&SystemTime::now()),
+                Ok(created_time) => toISO8601(&created_time),
+                Err(_) => toISO8601(&SystemTime::now()),
             };
 
             let modified_at = match path.metadata().unwrap().modified() {
-                Ok(modified_time) => iso8601(&modified_time),
-                Err(_) => iso8601(&SystemTime::now()),
+                Ok(modified_time) => toISO8601(&modified_time),
+                Err(_) => toISO8601(&SystemTime::now()),
             };
 
             UploadAsset {
@@ -112,7 +112,7 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
         .collect_vec()
 }
 
-fn iso8601(st: &std::time::SystemTime) -> String {
+fn toISO8601(st: &std::time::SystemTime) -> String {
     let dt: DateTime<Utc> = st.clone().into();
     format!("{}", dt.format("%+"))
 }

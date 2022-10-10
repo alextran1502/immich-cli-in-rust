@@ -77,7 +77,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
 
     let pb = ProgressBar::new(assets.len() as u64);
     let progress_bar_style = ProgressStyle::with_template(
-        "[5] {spinner:.blue}  Uploading... {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+        "[5] {spinner:.blue} Uploading {bar:40.blue/blue} [{pos:>7}/{len:7}] {msg}",
     )
     .unwrap()
     .progress_chars("##-");
@@ -92,7 +92,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
             "[{}] Uploading {} ({} Bytes)",
             "▶".blue(),
             file_name.blue(),
-            file_size.to_string().blue()
+            indicatif::HumanBytes(file_size).to_string().blue()
         ));
 
         let file = File::open(asset.path.to_string()).await.unwrap();
