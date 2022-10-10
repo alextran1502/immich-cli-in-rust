@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+mime = { version = "0.3" }
 tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7.3", features = ["codec"] }
 clap = { version = "3.2.22", features = ["derive", "color"] }

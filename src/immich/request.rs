@@ -8,6 +8,7 @@ use reqwest::{multipart, Body};
 use std::{error::Error, path::Path, process::exit};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
+
 pub async fn ping_server(api_config: &Configuration) {
     println!("[1] Pinging server at {}", api_config.base_path.blue());
     match openapi::apis::server_info_api::ping_server(&api_config).await {
@@ -70,8 +71,8 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
     }
 }
 
-pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>) {
-    println!("[6] {}", "Uploading assets...".blink());
+pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
+    println!("[5] {}", "Uploading assets...".blink());
 
     for asset in assets {
         let file_path = Path::new(&asset.path);
@@ -90,7 +91,11 @@ pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>)
         // read file body stream
         let stream = FramedRead::new(file, BytesCodec::new());
         let file_body = Body::wrap_stream(stream);
-        let some_file = multipart::Part::stream(file_body).file_name(file_name.to_string());
+        let file_data = multipart::Part::stream(file_body)
+            .file_name(file_name.to_string())
+            .mime_str(asset.mime_type.to_string().as_str())
+            .unwrap();
+
         let form = reqwest::multipart::Form::new()
             .text("deviceAssetId", asset.id.to_string())
             .text("deviceId", "CLI")
@@ -100,7 +105,7 @@ pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>)
             .text("isFavorite", "false")
             .text("fileExtension", asset.file_extension.to_string())
             .text("duration", "0:00:00.000000")
-            .part("assetData", some_file);
+            .part("assetData", file_data);
 
         let url = format!("{}/asset/upload", api_config.base_path);
 
@@ -122,12 +127,12 @@ pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>)
                     println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
                 } else {
                     println!(
-                        "[{}] {} {}",
+                        "[{}] {} {} {}",
                         "x".red(),
-                        "Failed to upload asset".red(),
+                        "Failed to upload asset at".red(),
+                        file_path.to_str().unwrap().yellow(),
                         res.text().await.unwrap()
                     );
-                    exit(1)
                 }
             }
             Err(_) => {

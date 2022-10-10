@@ -1,30 +1,15 @@
 use chrono::prelude::{DateTime, Utc};
 use itertools::Itertools;
-use std::{ffi::OsStr, path::Path, str::FromStr, time::SystemTime};
+use std::{ffi::OsStr, path::Path, time::SystemTime};
 use walkdir::WalkDir;
 
-use crate::{immich::models::UploadAsset, FileFilter};
+use crate::{
+    immich::models::{SupportFileType, UploadAsset},
+    FileFilter,
+};
 use colored::*;
 
 use super::models::DeviceAsset;
-
-#[derive(Debug, PartialEq)]
-enum FileType {
-    Image,
-    Video,
-    Other,
-}
-
-impl FromStr for FileType {
-    type Err = ();
-    fn from_str(value: &str) -> Result<Self, Self::Err> {
-        match value {
-            "png" | "jpg" | "jpeg" | "webp" | "dng" => Ok(FileType::Image),
-            "mov" | "mp4" => Ok(FileType::Video),
-            _ => Ok(FileType::Other),
-        }
-    }
-}
 
 pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
     println!("[4] {} {}", "Indexing directory", path.blue());
@@ -32,23 +17,19 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
         .into_iter()
         .filter_map(|e| match e.ok().filter(|e| e.file_type().is_file()) {
             Some(e) => match e.path().extension().and_then(OsStr::to_str) {
-                Some(ext) => match filter {
-                    FileFilter::ALL => match ext.to_lowercase().as_str() {
-                        "png" | "jpg" | "jpeg" | "webp" | "mov" | "dng" | "mp4" => {
-                            Some(e.path().display().to_string())
-                        }
-                        _ => None,
-                    },
-                    FileFilter::IMAGE => match ext.to_lowercase().as_str() {
-                        "png" | "jpg" | "jpeg" | "webp" | "dng" => {
-                            Some(e.path().display().to_string())
-                        }
-                        _ => None,
-                    },
-                    FileFilter::VIDEO => match ext.to_lowercase().as_str() {
-                        "mov" | "mp4" => Some(e.path().display().to_string()),
-                        _ => None,
-                    },
+                Some(ext) => match (
+                    filter,
+                    ext.to_lowercase()
+                        .as_str()
+                        .parse::<SupportFileType>()
+                        .unwrap(),
+                ) {
+                    (FileFilter::ALL, _)
+                    | (FileFilter::IMAGE, SupportFileType::Image)
+                    | (FileFilter::VIDEO, SupportFileType::Video) => {
+                        Some(e.path().display().to_string())
+                    }
+                    _ => None,
                 },
                 None => None,
             },
@@ -65,7 +46,6 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
 }
 
 pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
-    println!("[5] {} {}", "Getting file metadata", "...");
     device_asset
         .iter()
         .map(|asset| {
@@ -79,14 +59,35 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
                 .to_str()
                 .unwrap()
                 .to_lowercase()
-                .parse::<FileType>()
+                .parse::<SupportFileType>()
                 .unwrap()
             {
-                FileType::Image => "IMAGE",
-                FileType::Video => "VIDEO",
-                FileType::Other => "OTHER",
+                SupportFileType::Image => "IMAGE",
+                SupportFileType::Video => "VIDEO",
+                SupportFileType::Other => "OTHER",
             }
             .to_string();
+
+            let mime_type = match path
+                .extension()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_lowercase()
+                .as_str()
+            {
+                "png" => "image/png",
+                "jpg" | "jpeg" | "jfif" => "image/jpeg",
+                "webp" => "image/webp",
+                "dng" => "image/dng",
+                "heic" | "heif" => "image/heic",
+                "tiff" => "image/tiff",
+                "nef" => "image/nef",
+                "mov" => "video/quicktime",
+                "mp4" => "video/mp4",
+                "3gp" => "video/3gpp",
+                &_ => "application/octet-stream",
+            };
 
             let created_at = match path.metadata().unwrap().created() {
                 Ok(created_time) => iso8601(&created_time),
@@ -105,6 +106,7 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
                 created_at,
                 modified_at,
                 file_extension: path.extension().unwrap().to_str().unwrap().to_string(),
+                mime_type: mime_type.to_string(),
             }
         })
         .collect_vec()

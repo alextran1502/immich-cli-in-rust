@@ -381,6 +381,7 @@ dependencies = [
  "colored",
  "itertools",
  "log",
+ "mime",
  "openapi",
  "reqwest",
  "simplelog",

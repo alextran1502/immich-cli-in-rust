@@ -4,6 +4,7 @@ use crate::{
     immich::{self, models::DeviceAsset},
     FileFilter,
 };
+use colored::*;
 use itertools::Itertools;
 use openapi::apis::configuration::Configuration;
 
@@ -57,8 +58,12 @@ pub async fn upload(
         })
         .collect_vec();
 
+    println!(
+        "[{}] Found {} new files to upload",
+        "✓".green(),
+        files_to_upload.len().to_string().green()
+    );
     let files_with_metadata = immich::fs::get_file_metadata(&files_to_upload);
-    println!("{:?}", files_with_metadata.len());
 
-    immich::request::upload_asset(&api_config, &files_with_metadata).await;
+    immich::request::upload(&api_config, &files_with_metadata).await;
 }
