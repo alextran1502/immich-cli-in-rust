@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7.3", features = ["codec"] }
 clap = { version = "3.2.22", features = ["derive", "color"] }
 log = { version = "0.4" }
 simplelog = { version = "^0.11.0", features = ["paris"] }
@@ -15,4 +16,4 @@ colored = "2"
 openapi = { path = "./openapi" }
 itertools = "0.10.5"
 chrono = "0.4.22"
-reqwest = { version = "0.11.12" }
+reqwest = { version = "0.11.12", features = ["stream", "multipart", "json"] }

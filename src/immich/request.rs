@@ -4,9 +4,10 @@ use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
 };
-use reqwest::multipart;
+use reqwest::{multipart, Body};
 use std::{error::Error, path::Path, process::exit};
-
+use tokio::fs::File;
+use tokio_util::codec::{BytesCodec, FramedRead};
 pub async fn ping_server(api_config: &Configuration) {
     println!("[1] Pinging server at {}", api_config.base_path.blue());
     match openapi::apis::server_info_api::ping_server(&api_config).await {
@@ -84,26 +85,55 @@ pub async fn upload_asset(api_config: &Configuration, assets: &Vec<UploadAsset>)
             file_size.to_string().blue()
         );
 
-        let form = reqwest::multipart::Form::new()
-            .text("username", "seanmonstar")
-            .text("password", "secret");
+        let file = File::open(asset.path.to_string()).await.unwrap();
 
-        match openapi::apis::asset_api::upload_file(api_config, file_path.to_path_buf()).await {
-            Ok(_) => {
-                println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
+        // read file body stream
+        let stream = FramedRead::new(file, BytesCodec::new());
+        let file_body = Body::wrap_stream(stream);
+        let some_file = multipart::Part::stream(file_body).file_name(file_name.to_string());
+        let form = reqwest::multipart::Form::new()
+            .text("deviceAssetId", asset.id.to_string())
+            .text("deviceId", "CLI")
+            .text("assetType", asset.asset_type.to_string())
+            .text("createdAt", asset.created_at.to_string())
+            .text("modifiedAt", asset.modified_at.to_string())
+            .text("isFavorite", "false")
+            .text("fileExtension", asset.file_extension.to_string())
+            .text("duration", "0:00:00.000000")
+            .part("assetData", some_file);
+
+        let url = format!("{}/asset/upload", api_config.base_path);
+
+        match reqwest::Client::new()
+            .post(url)
+            .multipart(form)
+            .header(
+                "Authorization",
+                format!(
+                    "Bearer {}",
+                    api_config.bearer_access_token.as_ref().unwrap()
+                ),
+            )
+            .send()
+            .await
+        {
+            Ok(res) => {
+                if res.status().is_success() {
+                    println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
+                } else {
+                    println!(
+                        "[{}] {} {}",
+                        "x".red(),
+                        "Failed to upload asset".red(),
+                        res.text().await.unwrap()
+                    );
+                    exit(1)
+                }
             }
             Err(_) => {
                 println!("[{}] {}", "x".red(), "Failed to upload asset".red());
+                exit(1)
             }
         }
     }
-    // asset.iter().for_each(|asset| {
-    //     println!("Uploading {}", asset.path.blue());
-    //     let path_to_file = Path::new(&asset.path).to_path_buf();
-    //     if let Ok(_) = openapi::apis::asset_api::upload_file(api_config, path_to_file).await {
-    //         println!("[{}] {}", "✓".green(), "Uploaded".green());
-    //     } else {
-    //         println!("[{}] {}", "x".red(), "Failed to upload".red());
-    //     }
-    // });
 }
