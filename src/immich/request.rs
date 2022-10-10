@@ -1,5 +1,6 @@
 use super::models::UploadAsset;
 use colored::*;
+use indicatif::ProgressBar;
 use openapi::{
     apis::{authentication_api, configuration::Configuration},
     models::{LoginCredentialDto, LoginResponseDto},
@@ -73,18 +74,27 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
 
 pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
     println!("[5] {}", "Uploading assets...".blink());
+    let client = reqwest::Client::new();
+
+    let pb = ProgressBar::new(assets.len() as u64);
 
     for asset in assets {
         let file_path = Path::new(&asset.path);
         let file_name = file_path.file_name().unwrap().to_str().unwrap();
         let file_size = file_path.metadata().unwrap().len();
 
-        println!(
-            "[{}] Uploading {} ({} Bytes)",
-            "⇢".blue(),
-            file_name.blue(),
-            file_size.to_string().blue()
-        );
+        // println!(
+        //     "[{}] Uploading {} ({} Bytes)",
+        //     "▶".blue(),
+        //     file_name.blue(),
+        //     file_size.to_string().blue()
+        // );
+
+        pb.set_message(format!(
+            "Uploading {} ({} Bytes)",
+            file_name,
+            file_size.to_string()
+        ));
 
         let file = File::open(asset.path.to_string()).await.unwrap();
 
@@ -109,7 +119,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
 
         let url = format!("{}/asset/upload", api_config.base_path);
 
-        match reqwest::Client::new()
+        match client
             .post(url)
             .multipart(form)
             .header(
@@ -124,10 +134,11 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
         {
             Ok(res) => {
                 if res.status().is_success() {
-                    println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
+                    pb.inc(1);
+                    // println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
                 } else {
                     println!(
-                        "[{}] {} {} {}",
+                        "[{}] {} {} | Error Message: {}",
                         "x".red(),
                         "Failed to upload asset at".red(),
                         file_path.to_str().unwrap().yellow(),

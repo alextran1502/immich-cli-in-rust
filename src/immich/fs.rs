@@ -24,7 +24,7 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
                         .parse::<SupportFileType>()
                         .unwrap(),
                 ) {
-                    (FileFilter::ALL, _)
+                    (FileFilter::ALL, SupportFileType::Image | SupportFileType::Video)
                     | (FileFilter::IMAGE, SupportFileType::Image)
                     | (FileFilter::VIDEO, SupportFileType::Video) => {
                         Some(e.path().display().to_string())
