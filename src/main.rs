@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 #[clap(about = "CLI Utilities for Immich", long_about = None)]
 #[clap(version)]
 struct Cli {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     command: Commands,
 }
 
@@ -24,23 +24,23 @@ enum Commands {
     /// Upload assets to Immich server
     Upload {
         /// Email
-        #[clap(value_parser, short, long)]
+        #[arg(short, long)]
         email: String,
 
         /// Password
-        #[clap(value_parser, short, long)]
+        #[arg(short, long)]
         password: String,
 
         /// Path to assets
-        #[clap(value_parser, short, long, default_value = "./")]
+        #[arg(short, long, default_value = "./")]
         directory: String,
 
         /// Immich Server URL
-        #[clap(value_parser, short, long)]
+        #[arg(short, long)]
         server: String,
 
-        /// File filter
-        #[clap(arg_enum, value_parser, short, long, default_value = "all")]
+        // File filter
+        #[arg(value_enum, long, short, default_value = "all")]
         filter: FileFilter,
     },
 }
