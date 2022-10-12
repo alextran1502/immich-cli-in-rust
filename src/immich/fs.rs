@@ -1,7 +1,9 @@
 use chrono::prelude::{DateTime, Utc};
 use exif::{In, Reader, Tag, Value};
 use itertools::Itertools;
-use std::{ffi::OsStr, fs::File, io::BufReader, path::Path, time::SystemTime};
+use std::{
+    collections::HashMap, ffi::OsStr, fs::File, io::BufReader, path::Path, time::SystemTime,
+};
 use walkdir::WalkDir;
 
 use crate::{
@@ -44,13 +46,29 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
         filter,
     );
 
+    let mut a: HashMap<String, Vec<String>> = HashMap::new();
     let root_dir = WalkDir::new(path).into_iter();
 
     for sub_directory in root_dir.filter_map(|e| e.ok()) {
+        let mut valid_files: Vec<String> = Vec::new();
         if sub_directory.file_type().is_dir() {
-            println!("{}", sub_directory.path().display());
+            let directory_name = sub_directory.file_name().to_string_lossy().to_string();
+            let directory_walk = WalkDir::new(sub_directory.path().display().to_string())
+                .max_depth(1)
+                .into_iter();
+
+            for file in directory_walk.filter_map(|e| e.ok()) {
+                if file.file_type().is_file() {
+                    let file_path = file.path().display().to_string();
+                    valid_files.push(file_path);
+                }
+            }
+
+            a.insert(directory_name, valid_files);
         }
     }
+
+    println!("[{}] {:#?} directories found", "✓".green(), a);
 
     valid_paths
 }
