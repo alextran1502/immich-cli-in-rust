@@ -43,6 +43,15 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
         valid_paths.len(),
         filter,
     );
+
+    let root_dir = WalkDir::new(path).into_iter();
+
+    for sub_directory in root_dir.filter_map(|e| e.ok()) {
+        if sub_directory.file_type().is_dir() {
+            println!("{}", sub_directory.path().display());
+        }
+    }
+
     valid_paths
 }
 

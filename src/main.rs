@@ -61,5 +61,5 @@ async fn main() {
 }
 
 // Quick Test
-// cargo run -- upload -e testuser@email.com -p password -d ~/Downloads -s http://10.1.15.216:2283/api
+// cargo run -- upload -e testuser@email.com -p password -s http://10.1.15.216:2283/api -d ~/Downloads
 // docker run -it --rm -v $(pwd):/import test upload -e testuser@email.com -p password -d /import -s http://10.1.15.216:2283/api
