@@ -90,7 +90,11 @@ pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {
                 &_ => "application/octet-stream",
             };
 
-            let mut created_at = to_iso8601(&SystemTime::now());
+            let mut created_at = match path.metadata().unwrap().modified() {
+                Ok(created_time) => to_iso8601(&created_time),
+                Err(_) => to_iso8601(&SystemTime::now()),
+            };
+
             if file_type == "IMAGE" {
                 created_at = get_exif_time(&path.to_str().unwrap());
             }
@@ -128,11 +132,10 @@ fn get_created_at(path: &Path) -> String {
 }
 
 fn get_exif_time(path: &str) -> String {
-    println!("Get EXIF time for {}", path);
     let exif =
         match Reader::new().read_from_container(&mut BufReader::new(&File::open(path).unwrap())) {
             Ok(exif) => exif,
-            Err(_) => return to_iso8601(&SystemTime::now()),
+            Err(_) => return get_created_at(Path::new(path)),
         };
 
     let datetime = match exif.get_field(Tag::DateTimeOriginal, In::PRIMARY) {
