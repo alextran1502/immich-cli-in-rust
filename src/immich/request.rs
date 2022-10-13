@@ -11,7 +11,10 @@ use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
 pub async fn ping_server(api_config: &Configuration) {
-    println!("[1] Pinging server at {}", api_config.base_path.blue());
+    println!(
+        "[1] Pinging server at {}",
+        api_config.base_path.blue().bold()
+    );
     match openapi::apis::server_info_api::ping_server(&api_config).await {
         Ok(_) => {
             println!("[{}] Established connection to server", "✓".green(),);
@@ -44,7 +47,7 @@ pub async fn login(
             println!(
                 "[{}] Logged in as {}",
                 "✓".green(),
-                auth_user.user_email.blue(),
+                auth_user.user_email.blue().bold(),
             );
             auth_user
         }
@@ -90,9 +93,9 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
 
         pb.set_message(format!(
             "[{}] Uploading {} ({} Bytes)",
-            "▶".blue(),
-            file_name.blue(),
-            indicatif::HumanBytes(file_size).to_string().blue()
+            "▶".blue().bold(),
+            file_name.blue().bold(),
+            indicatif::HumanBytes(file_size).to_string().blue().bold()
         ));
 
         let file = File::open(asset.path.to_string()).await.unwrap();
@@ -137,7 +140,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
             Ok(res) => {
                 if res.status().is_success() {
                     pb.inc(1);
-                    // println!("[{}] Uploaded {}", "✓".green(), file_name.blue());
+                    // println!("[{}] Uploaded {}", "✓".green(), file_name.blue().bold());
                 } else {
                     pb.inc(1);
                     println!(

@@ -39,9 +39,13 @@ enum Commands {
         #[arg(short, long)]
         server: String,
 
-        // File filter
+        /// File type to upload
         #[arg(value_enum, long, short, default_value = "all")]
         filter: FileFilter,
+
+        /// Create album based on folder name
+        #[arg(long, short, default_value = "false")]
+        album: bool,
     },
 }
 
@@ -56,7 +60,8 @@ async fn main() {
             directory,
             server,
             filter,
-        } => immich::commands::upload(email, password, directory, server, filter).await,
+            album,
+        } => immich::commands::upload(email, password, directory, server, filter, album).await,
     }
 }
 

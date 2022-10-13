@@ -4,53 +4,24 @@ use itertools::Itertools;
 use std::{
     collections::HashMap, ffi::OsStr, fs::File, io::BufReader, path::Path, time::SystemTime,
 };
+
 use walkdir::WalkDir;
 
 use crate::{
-    immich::models::{SupportFileType, UploadAsset},
+    immich::models::{FolderName, SupportFileType, UploadAsset},
     FileFilter,
 };
 use colored::*;
 
 use super::models::DeviceAsset;
 
-pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
-    println!("[4] {} {}", "Indexing directory", path.blue());
-    let valid_paths: Vec<String> = WalkDir::new(path)
-        .into_iter()
-        .filter_map(|e| match e.ok().filter(|e| e.file_type().is_file()) {
-            Some(e) => match e.path().extension().and_then(OsStr::to_str) {
-                Some(ext) => match (
-                    filter,
-                    ext.to_lowercase()
-                        .as_str()
-                        .parse::<SupportFileType>()
-                        .unwrap(),
-                ) {
-                    (FileFilter::ALL, SupportFileType::Image | SupportFileType::Video)
-                    | (FileFilter::IMAGE, SupportFileType::Image)
-                    | (FileFilter::VIDEO, SupportFileType::Video) => {
-                        Some(e.path().display().to_string())
-                    }
-                    _ => None,
-                },
-                None => None,
-            },
-            None => None,
-        })
-        .collect();
-    println!(
-        "[{}] {} files ({:?}) found",
-        "✓".green(),
-        valid_paths.len(),
-        filter,
-    );
-
-    let mut a: HashMap<String, Vec<String>> = HashMap::new();
+pub fn dir_walk(path: &str, filter: &FileFilter) -> HashMap<FolderName, Vec<DeviceAsset>> {
+    println!("[4] {} {}", "Indexing directory", path.blue().bold());
+    let mut file_walk_result: HashMap<FolderName, Vec<DeviceAsset>> = HashMap::new();
     let root_dir = WalkDir::new(path).into_iter();
 
     for sub_directory in root_dir.filter_map(|e| e.ok()) {
-        let mut valid_files: Vec<String> = Vec::new();
+        let mut valid_files: Vec<DeviceAsset> = Vec::new();
         if sub_directory.file_type().is_dir() {
             let directory_name = sub_directory.file_name().to_string_lossy().to_string();
             let directory_walk = WalkDir::new(sub_directory.path().display().to_string())
@@ -59,18 +30,49 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> Vec<String> {
 
             for file in directory_walk.filter_map(|e| e.ok()) {
                 if file.file_type().is_file() {
-                    let file_path = file.path().display().to_string();
-                    valid_files.push(file_path);
+                    if let Some(file_path) = match file.path().extension().and_then(OsStr::to_str) {
+                        Some(ext) => match (
+                            filter,
+                            ext.to_lowercase()
+                                .as_str()
+                                .parse::<SupportFileType>()
+                                .unwrap(),
+                        ) {
+                            (FileFilter::ALL, SupportFileType::Image | SupportFileType::Video)
+                            | (FileFilter::IMAGE, SupportFileType::Image)
+                            | (FileFilter::VIDEO, SupportFileType::Video) => Some(file.path()),
+                            _ => None,
+                        },
+                        None => None,
+                    } {
+                        let file_name = file_path.file_name().unwrap().to_str().unwrap();
+                        let file_size = file_path.metadata().unwrap().len();
+                        let file_id = format!("{}-{}", file_name, file_size);
+                        let device_asset = DeviceAsset {
+                            id: file_id,
+                            path: file_path.to_str().unwrap().to_string(),
+                        };
+
+                        valid_files.push(device_asset);
+                    }
                 }
             }
 
-            a.insert(directory_name, valid_files);
+            file_walk_result.insert(directory_name, valid_files);
         }
     }
 
-    println!("[{}] {:#?} directories found", "✓".green(), a);
+    // Report directory walk result with directory found and total number of files
+    let total_files = file_walk_result.values().map(|v| v.len()).sum::<usize>();
 
-    valid_paths
+    println!(
+        "[{}] Found {} files in {} directories",
+        "✓".green(),
+        total_files.to_string().blue().bold(),
+        file_walk_result.len().to_string().blue().bold()
+    );
+
+    file_walk_result
 }
 
 pub fn get_file_metadata(device_asset: &Vec<&DeviceAsset>) -> Vec<UploadAsset> {

@@ -36,3 +36,6 @@ impl FromStr for SupportFileType {
         }
     }
 }
+
+// Folder
+pub type FolderName = String;

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use crate::{
     immich::{self, models::DeviceAsset},
@@ -8,12 +8,15 @@ use colored::*;
 use itertools::Itertools;
 use openapi::apis::configuration::Configuration;
 
+use super::models::FolderName;
+
 pub async fn upload(
     email: &str,
     password: &str,
     directory: &str,
     server: &str,
     filter: &FileFilter,
+    album: &bool,
 ) {
     let device_id = "CLI";
     let mut api_config = Configuration::new();
@@ -31,39 +34,46 @@ pub async fn upload(
     // Get deviceAssetId from database
     let asset_on_database = immich::request::get_device_assets(&api_config, &device_id).await;
 
-    // Get files
-    let asset_on_device = immich::fs::dir_walk(directory, &filter)
-        .iter()
-        .map(|file| {
-            let path = Path::new(&file);
-            let file_name = path.file_name().unwrap().to_str().unwrap();
-            let file_size = path.metadata().unwrap().len();
-            let fild_id = format!("{}-{}", file_name, file_size);
+    // Get assets from each sub-folder and group them together by folder name
+    let asset_on_device = immich::fs::dir_walk(directory, &filter);
 
-            DeviceAsset {
-                id: fild_id,
-                path: file.to_string(),
-            }
-        })
-        .collect_vec();
+    // Get assets that are not on the database
+    let asset_to_upload = remove_uploaded_asset(asset_on_database, asset_on_device);
 
-    // Get files that are not on device
-    let files_to_upload = asset_on_device
-        .iter()
-        .filter(|file| {
-            asset_on_database
-                .iter()
-                .find(|asset_id| asset_id.to_string() == file.id)
-                .is_none()
-        })
-        .collect_vec();
+    println!("{:?}", asset_to_upload);
+    // flat hashmap
+    let files_to_upload = asset_to_upload.values().flatten().collect_vec();
 
-    println!(
-        "[{}] Found {} new files to upload",
-        "✓".green(),
-        files_to_upload.len().to_string().green()
-    );
+    // println!(
+    //     "[{}] Found {} new files to upload",
+    //     "✓".green(),
+    //     files_to_upload.len().to_string().green()
+    // );
     let files_with_metadata = immich::fs::get_file_metadata(&files_to_upload);
 
     immich::request::upload(&api_config, &files_with_metadata).await;
+}
+
+fn remove_uploaded_asset(
+    asset_on_database: Vec<String>,
+    asset_on_device: HashMap<FolderName, Vec<DeviceAsset>>,
+) -> HashMap<FolderName, Vec<DeviceAsset>> {
+    let mut asset_to_upload: HashMap<FolderName, Vec<DeviceAsset>> = HashMap::new();
+
+    for (folder_name, device_assets) in asset_on_device {
+        let mut valid_files: Vec<DeviceAsset> = Vec::new();
+        for device_asset in device_assets {
+            if asset_on_database
+                .iter()
+                .find(|asset_id| asset_id.to_string() == device_asset.id)
+                .is_none()
+            {
+                valid_files.push(device_asset);
+            }
+        }
+
+        asset_to_upload.insert(folder_name, valid_files);
+    }
+
+    asset_to_upload
 }
