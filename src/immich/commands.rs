@@ -40,18 +40,21 @@ pub async fn upload(
     // Get assets that are not on the database
     let asset_to_upload = remove_uploaded_asset(asset_on_database, asset_on_device);
 
-    println!("{:?}", asset_to_upload);
-    // flat hashmap
-    let files_to_upload = asset_to_upload.values().flatten().collect_vec();
-
-    // println!(
-    //     "[{}] Found {} new files to upload",
-    //     "✓".green(),
-    //     files_to_upload.len().to_string().green()
-    // );
-    let files_with_metadata = immich::fs::get_file_metadata(&files_to_upload);
-
-    immich::request::upload(&api_config, &files_with_metadata).await;
+    if *album {
+        println!("Upload as album");
+    } else {
+        let files_to_upload = asset_to_upload.values().flatten().collect_vec();
+        println!(
+            "[{}] Found {} new files to upload",
+            "✓".green().bold(),
+            files_to_upload.len().to_string().blue().bold()
+        );
+        if files_to_upload.is_empty() {
+            return;
+        }
+        let files_with_metadata = immich::fs::get_file_metadata(&files_to_upload);
+        immich::request::upload(&api_config, &files_with_metadata).await;
+    }
 }
 
 fn remove_uploaded_asset(

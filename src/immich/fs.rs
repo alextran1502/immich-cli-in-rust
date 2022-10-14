@@ -67,7 +67,7 @@ pub fn dir_walk(path: &str, filter: &FileFilter) -> HashMap<FolderName, Vec<Devi
 
     println!(
         "[{}] Found {} files in {} directories",
-        "✓".green(),
+        "✓".green().bold(),
         total_files.to_string().blue().bold(),
         file_walk_result.len().to_string().blue().bold()
     );

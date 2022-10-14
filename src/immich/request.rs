@@ -17,7 +17,7 @@ pub async fn ping_server(api_config: &Configuration) {
     );
     match openapi::apis::server_info_api::ping_server(&api_config).await {
         Ok(_) => {
-            println!("[{}] Established connection to server", "✓".green(),);
+            println!("[{}] Established connection to server", "✓".green().bold(),);
         }
         Err(_) => {
             println!(
@@ -46,7 +46,7 @@ pub async fn login(
         Ok(auth_user) => {
             println!(
                 "[{}] Logged in as {}",
-                "✓".green(),
+                "✓".green().bold(),
                 auth_user.user_email.blue().bold(),
             );
             auth_user
@@ -65,7 +65,11 @@ pub async fn get_device_assets(api_config: &Configuration, device_id: &str) -> V
 
     match openapi::apis::asset_api::get_user_assets_by_device_id(api_config, device_id).await {
         Ok(asset_id) => {
-            println!("[{}] Found {} existing assets", "✓".green(), asset_id.len());
+            println!(
+                "[{}] Found {} assets that are uploaded from the CLI",
+                "✓".green().bold(),
+                asset_id.len().to_string().blue().bold()
+            );
             asset_id
         }
         Err(_) => {
@@ -80,7 +84,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
 
     let pb = ProgressBar::new(assets.len() as u64);
     let progress_bar_style = ProgressStyle::with_template(
-        "[5] {spinner:.blue} Uploading {bar:40.blue/blue} [{pos:>7}/{len:7}] {msg}",
+        "[5] {spinner:.blue} Uploading {bar:40.blue.bold/blue.bold} [{pos:>7}/{len:7}] {msg}",
     )
     .unwrap()
     .progress_chars("##-");
@@ -140,7 +144,7 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
             Ok(res) => {
                 if res.status().is_success() {
                     pb.inc(1);
-                    // println!("[{}] Uploaded {}", "✓".green(), file_name.blue().bold());
+                    // println!("[{}] Uploaded {}", "✓".green().bold(), file_name.blue().bold());
                 } else {
                     pb.inc(1);
                     println!(
@@ -159,5 +163,5 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
         }
     }
 
-    pb.finish_with_message(format!("[{}] Finished", "✓".green()))
+    pb.finish_with_message(format!("[{}] Finished", "✓".green().bold()))
 }
