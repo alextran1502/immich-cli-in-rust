@@ -31,6 +31,7 @@ Class | Method | HTTP request | Description
 *AlbumApi* | [**delete_album**](docs/AlbumApi.md#delete_album) | **DELETE** /album/{albumId} | 
 *AlbumApi* | [**get_album_count_by_user_id**](docs/AlbumApi.md#get_album_count_by_user_id) | **GET** /album/count-by-user-id | 
 *AlbumApi* | [**get_album_info**](docs/AlbumApi.md#get_album_info) | **GET** /album/{albumId} | 
+*AlbumApi* | [**get_album_info_by_name**](docs/AlbumApi.md#get_album_info_by_name) | **GET** /album/name/{albumName} | 
 *AlbumApi* | [**get_all_albums**](docs/AlbumApi.md#get_all_albums) | **GET** /album | 
 *AlbumApi* | [**remove_asset_from_album**](docs/AlbumApi.md#remove_asset_from_album) | **DELETE** /album/{albumId}/assets | 
 *AlbumApi* | [**remove_user_from_album**](docs/AlbumApi.md#remove_user_from_album) | **DELETE** /album/{albumId}/user/{userId} | 

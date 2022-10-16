@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**delete_album**](AlbumApi.md#delete_album) | **DELETE** /album/{albumId} | 
 [**get_album_count_by_user_id**](AlbumApi.md#get_album_count_by_user_id) | **GET** /album/count-by-user-id | 
 [**get_album_info**](AlbumApi.md#get_album_info) | **GET** /album/{albumId} | 
+[**get_album_info_by_name**](AlbumApi.md#get_album_info_by_name) | **GET** /album/name/{albumName} | 
 [**get_all_albums**](AlbumApi.md#get_all_albums) | **GET** /album | 
 [**remove_asset_from_album**](AlbumApi.md#remove_asset_from_album) | **DELETE** /album/{albumId}/assets | 
 [**remove_user_from_album**](AlbumApi.md#remove_user_from_album) | **DELETE** /album/{albumId}/user/{userId} | 
@@ -167,6 +168,34 @@ This endpoint does not need any parameter.
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
 **album_id** | **String** |  | [required] |
+
+### Return type
+
+[**crate::models::AlbumResponseDto**](AlbumResponseDto.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## get_album_info_by_name
+
+> crate::models::AlbumResponseDto get_album_info_by_name(album_name)
+
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**album_name** | **String** |  | [required] |
 
 ### Return type
 
