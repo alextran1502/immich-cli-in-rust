@@ -3,7 +3,7 @@ use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use openapi::{
     apis::{authentication_api, configuration::Configuration},
-    models::{LoginCredentialDto, LoginResponseDto},
+    models::{AlbumResponseDto, LoginCredentialDto, LoginResponseDto},
 };
 use reqwest::{multipart, Body};
 use std::{error::Error, path::Path, process::exit};
@@ -164,4 +164,26 @@ pub async fn upload(api_config: &Configuration, assets: &Vec<UploadAsset>) {
     }
 
     pb.finish_with_message(format!("[{}] Finished", "✓".green().bold()))
+}
+
+pub async fn get_albums(api_config: &Configuration) -> Vec<AlbumResponseDto> {
+    let albums = openapi::apis::album_api::get_all_albums(&api_config, Some(false), None).await;
+
+    if let Ok(albums) = { albums } {
+        println!("[5] {}", "Getting existing albums...".blink());
+        println!(
+            "[{}] Found {} albums",
+            "✓".green().bold(),
+            albums.len().to_string().blue().bold()
+        );
+
+        for album in &albums {
+            println!("[{}] {}", "▶".blue().bold(), album.album_name.blue().bold());
+        }
+
+        return albums;
+    } else {
+        println!("[{}] {}", "x".red(), "Failed to get albums".red());
+        exit(1)
+    }
 }

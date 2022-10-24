@@ -31,16 +31,6 @@ pub async fn upload(
     // All requests that need auth start here
     api_config.bearer_access_token = Some(auth_user.access_token);
 
-    let a = match openapi::apis::album_api::get_album_info_by_name(&api_config, "Hello World").await
-    {
-        Ok(a) => a,
-        Err(e) => {
-            println!("Error: {}", e);
-            return;
-        }
-    };
-
-    println!("Album: {:?}", a);
     // Get deviceAssetId from database
     let asset_on_database = immich::request::get_device_assets(&api_config, &device_id).await;
 
@@ -52,6 +42,10 @@ pub async fn upload(
 
     if *album {
         println!("Upload as album");
+        // Get all existing album info
+        let albums = immich::request::get_albums(&api_config).await;
+
+        println!("Albums: {:?}", albums);
     } else {
         let files_to_upload = asset_to_upload.values().flatten().collect_vec();
         println!(

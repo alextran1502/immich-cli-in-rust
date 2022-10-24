@@ -35,11 +35,11 @@ enum Commands {
         #[arg(short, long, default_value = "./")]
         directory: String,
 
-        /// Immich Server URL
+        /// Immich Server URL (example: http://10.1.15.216:2283/api)
         #[arg(short, long)]
         server: String,
 
-        /// File type to upload
+        /// File type to upload, video or image
         #[arg(value_enum, long, short, default_value = "all")]
         filter: FileFilter,
 
